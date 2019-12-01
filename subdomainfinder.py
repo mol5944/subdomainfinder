@@ -1,24 +1,35 @@
 import requests
 from socket import gethostbyname
 from sys import argv
+from threading import Thread
+from time import sleep
 
 def help():
     print('--domain (domain name to scan)')
     print('--wordlist (list of words to search)')
+    print('--threads (threads to scan)')
+    print('--sleep_thr (waiting between threads)')
+    print('--output (output file)')
     quit()
+
+def save(file_name,string):
+    with open(file_name,'at') as file:
+        file.write(string + '\n')
 
 def generator(string):
     for word in string:
         subdomain = word.replace('\n','')
         yield subdomain
 
-def request(domain):
+def request(domain,output):
     try:
         ip = gethostbyname(domain)
     except:
         pass
     else:
         print(domain + "     " + ip)
+        if output != None:
+            save(output,domain + "     " + ip)
 
 
 
@@ -41,11 +52,36 @@ else:
     print('****************************************')
     help()
 
+if '--threads' in argv:
+    threads = int(argv[argv.index('--threads') + 1])
+else:
+    threads = 1
+
+if '--sleep_thr' in argv:
+    sleep_thr = int(argv[argv.index('--sleep_thr') + 1])
+else:
+    sleep_thr = 0
+
+if '--output' in argv:
+    output = argv[argv.index('--output') +1]
+else:
+    output = None
 
 
 
-
+count_thr = 0
 
 with open(wordlist,'rt') as dictionary:
     for subdomain in generator(dictionary):
-        request(subdomain + '.' + domain)
+        if count_thr == threads:
+            sleep(sleep_thr)
+            count_thr = 0
+        thr = Thread(target=request, args=(subdomain + '.' + domain,output,))
+        thr.start()
+        count_thr += 1
+
+
+
+
+
+
