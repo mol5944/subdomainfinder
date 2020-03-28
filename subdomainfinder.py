@@ -5,11 +5,11 @@ from threading import Thread
 from time import sleep
 
 def help():
-    print('--domain (domain name to scan)')
-    print('--wordlist (list of words to search)')
-    print('--threads (threads to scan)')
-    print('--sleep_thr (waiting between threads)')
-    print('--output (output file)')
+    print('--domain: Domain name to scan')
+    print('--wordlist: List of words to search')
+    print('--threads: Threads to scan')
+    print('--sleep_thr: Waiting between threads')
+    print('--output: Output file')
     quit()
 
 def save(file_name,string):
@@ -27,6 +27,22 @@ def request(domain,output):
     except:
         pass
     else:
+        bool = False
+
+        try:
+            resp_http = requests.get('http://' + domain)
+        except:
+            pass
+        else:
+            bool = True
+
+        try:
+            resp_https = requests.get('https://' + domain)
+        except:
+            pass
+        else:
+            bool = True
+
         print(domain + "     " + ip)
         if output != None:
             save(output,domain + "     " + ip)
@@ -40,7 +56,7 @@ if '--domain' in argv:
     domain = argv[argv.index('--domain') + 1]
 else:
     print('****************************************')
-    print('specify the argument --domain')
+    print('Specify the argument --domain')
     print('****************************************')
     help()
 
@@ -48,7 +64,7 @@ if '--wordlist' in argv:
     wordlist = argv[argv.index('--wordlist') + 1]
 else:
     print('****************************************')
-    print('specify the argument --wordlist')
+    print('Specify the argument --wordlist')
     print('****************************************')
     help()
 
@@ -79,9 +95,3 @@ with open(wordlist,'rt') as dictionary:
         thr = Thread(target=request, args=(subdomain + '.' + domain,output,))
         thr.start()
         count_thr += 1
-
-
-
-
-
-
